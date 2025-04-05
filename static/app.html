@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Some app :-)</title>
+</head>
+<body>
+    <div style="text-align: center;">
+    <form action="/api/search" method="get">
+        <input type="text" name="q" id="searchinput" placeholder="Zadejte nazev filmu nebo herce...">
+        <input type="submit" id="searchbtn" value="Vyhledat">
+    </form>
+    </div>
+</body>
+<script>
+    document.getElementById("searchbtn").addEventListener("click", function() {
+        let query = document.getElementById("searchinput").value;
+        if (!query) return;
+
+        fetch(`/search?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+    })
+</script>
+</html>
