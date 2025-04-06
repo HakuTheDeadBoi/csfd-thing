@@ -6,20 +6,109 @@
     <title>Some app :-)</title>
 </head>
 <body>
-    <div style="text-align: center;">
-    <form action="/api/search" method="get">
+    <div id="search" style="text-align: center; border-style: solid">
+    <form id="searchform">
         <input type="text" name="q" id="searchinput" placeholder="Zadejte nazev filmu nebo herce...">
         <input type="submit" id="searchbtn" value="Vyhledat">
     </form>
     </div>
+    <div id="search-results" style="display: flex;">
+        <div id="movies" style="flex: 5; border-style: solid;">
+            <h2>Filmy:</h2>
+        </div>
+        <div id="actors"style="flex: 5; border-style: solid;">
+            <h2>Herci:</h2>
+        </div>
+    </div>
+    <div id="detail" style="display: none; border-style: solid">
+
+    </div>
 </body>
 <script>
-    document.getElementById("searchbtn").addEventListener("click", function() {
-        let query = document.getElementById("searchinput").value;
-        if (!query) return;
+    function fill_search(data) {
+        let moviesdiv = document.getElementById("movies");
+        moviesdiv.innerHTML = "<h2>Filmy:</h2>"
+        for (movie_id in data["movies"]) {
+            new_anchor = document.createElement("a");
+            new_anchor.href = `/api/movies/${movie_id}`;
+            new_anchor.text = data["movies"][movie_id];
+            new_anchor.classList.add("movie");
+            new_anchor.dataset.itemid = movie_id;
+            moviesdiv.appendChild(new_anchor);
+            moviesdiv.innerHTML += "<br>";
+        }
 
-        fetch(`/search?q=${encodeURIComponent(query)}`)
-            .then(response => response.json())
+        let actorsdiv = document.getElementById("actors");
+        actorsdiv.innerHTML = "<h2>Herci:</h2>"
+        for (actor_id in data["actors"]) {
+            new_anchor = document.createElement("a");
+            new_anchor.href = `/api/actors/${actor_id}`;
+            new_anchor.text = data["actors"][actor_id];
+            new_anchor.classList.add("actor");
+            new_anchor.dataset.itemid = actor_id;
+            actorsdiv.appendChild(new_anchor);
+            actorsdiv.innerHTML += "<br>";
+        }
+    }
+
+    function fill_detail(data, detail_type, item_name) {
+        detaildiv = document.getElementById("detail")
+        detaildiv.style = "display: block"
+        detaildiv.innerHTML = `<h3>${detail_type}: ${item_name}</h3>`
+        for (id in data) {
+            new_anchor = document.createElement("a");
+            new_anchor.href = `/api/${detail_type == "actor" ? "movies" : "actors"}/${id}`;
+            new_anchor.text = data[id];
+            new_anchor.classList.add(detail_type == "actor" ? "movie" : "actor");
+            new_anchor.dataset.itemid = id;
+            detaildiv.appendChild(new_anchor);
+            detaildiv.innerHTML += "<br>";
+        }
+
+    }
+
+    function fetch_search_data(query) {
+        fetch(`/api/search?query=${query}`)
+            .then((response) => {return response.json()})
+            .then((data) => {fill_search(data)});
+    }
+
+    function fetch_detail_data(detail_type, id, item_name) {
+        fetch(`/api/${detail_type}s/${id}`)
+            .then((response) => {return response.json()})
+            .then((data) => {fill_detail(data, detail_type, item_name)});
+    }
+
+    document.getElementById("searchform").addEventListener("submit",
+       (event) => {
+            event.preventDefault();
+            const query = document.getElementById("searchinput").value;
+            document.getElementById("search-results").style = "display: flex";
+            document.getElementById("detail").style = "display: none";
+            if (query.length > 2) {
+                fetch_search_data(query);
+            }
+            else {
+                alert("Dotaz musi mit aspon tri znaky!")
+            }
+       }
+    );
+
+    document.body.addEventListener("click", (event) => {
+        if (event.target.tagName == "A" ) {
+            event.preventDefault();
+
+            const a = event.target;
+            const detail = document.getElementById("detail");
+
+            document.getElementById("search-results").style = "display: none";
+            detail.style = "display: block";
+
+            fetch_detail_data(a.classList[0], a.dataset.itemid, a.text);
+        }
     })
+
+
+
 </script>
 </html>

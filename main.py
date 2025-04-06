@@ -24,7 +24,7 @@ async def index():
     with open("./static/app.html", "r") as FILE:
         return FILE.read()
     
-@app.get("/search")
+@app.get("/api/search")
 async def search(query: str):
     result = {"actors": {}, "movies": {}}
 
