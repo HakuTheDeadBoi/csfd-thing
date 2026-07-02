@@ -1,3 +1,6 @@
+# Test project done when applying for a job.
+I keep it here despite the fact I consider this code not very good. Maybe refactoring for fun later.
+
 ## How to use this:
 # 1) clone the code:
 > git clone https://github.com/HakuTheDeadBoi/csfd-thing.git
